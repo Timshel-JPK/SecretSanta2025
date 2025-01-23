@@ -2,69 +2,91 @@ import smtplib
 from email.mime.text import MIMEText
 from random import randint
 
-rec_name = "JEREMY"
-recipient_email = "jdude1000@gmail.com"
-
 sender_email = "jeremy.i.pk@gmail.com"
+# This is the old password.. sorry
 sender_password = "nkwa fpyy hzqa tive"
 
+email_dict = {'ALEC': 'jdude1000@gmail.com', 'COTE': 'jdude1000@gmail.com', 'DOM': 'jdude1000@gmail.com',
+              'IAN': 'jdude1000@gmail.com', 'JAMES': 'jdude1000@gmail.com', 'JEREMY': 'jdude1000@gmail.com',
+              'KABEER': 'jdude1000@gmail.com', 'KAMAL': 'jdude1000@gmail.com', 'LIAM': 'jdude1000@gmail.com',
+              'STEVEN': 'jdude1000@gmail.com'}
+santa_results = {}
+
 subject = "Secret Santa 2025"
-body = f"""
-<html>
-  <body>
-    <p>For Secret Santa 2025 you will be giving a gift to <b><i>{rec_name}</i></b>!</p> 
-    <p><small><small>This email 
-    was generated from a Python script written by Jeremy P-K. You can see the code yourself <a 
-    href="https://github.com/Timshel-JPK/SecretSanta2025">here</a>! 
-   </small></small></p> </body> </html>"""
 
 
-def send_email():
+def send_email(santa):
+    recipient_email = email_dict[santa]
+
+    body = f"""
+    <html>
+      <body>
+        <p>Dear <b>{santa}</b>,</p>
+        <p>For Secret Santa 2025 you will be giving a gift to <b><i>{santa_results[santa]}</i></b>!</p> 
+        <p>The rules for Secret Santa 2025 are as follows:
+        <ol>
+          <li>You must get your person something you make with a new skill you learn in 2025</li>
+          <li>You must get your person something starting with the letter
+          <b>{santa_results[santa][0]}</b></li>
+          <li>You have a budget of $150</li>
+        </ol>
+        </p>
+        <p>Have fun, see you guys on New Years Eve!</p>
+        <p><small><small>This email 
+        was generated from a Python script written by Jeremy P-K. You can see the code yourself <a 
+        href="https://github.com/Timshel-JPK/SecretSanta2025">here</a>! 
+       </small></small></p> </body> </html>"""
+
     html_message = MIMEText(body, 'html')
     html_message['Subject'] = subject
     html_message['From'] = sender_email
-    html_message['To'] = recipient_email
+    html_message['To'] = santa
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, html_message.as_string())
     print("Email sent to", recipient_email, "!")
 
 
-taken = []
-santa_dict = {}
-santa_dict[1] = 'alec@1'
-santa_dict[2] = 'cote@1'
-santa_dict[3] = 'dom@1'
+def randomize_santas():
+    santa_results.clear()
+    santas = list(email_dict.keys())
+    hat = santas[:]
+
+    i = 0
+    temp_hold = []
+
+    # Go until the hat is empty and everyone has been assigned someone else
+    while len(hat) > 0:
+        if list(email_dict.keys())[i] in hat:
+
+            # Take the gifter out of the hat (if they have yet to be picked), so they can't get themselves
+            temp_hold.append(santas[i])
+            hat.remove(santas[i])
+
+            # Scenario where the last gifter was also the last person who has not been picked
+            # When that happens start the randomization process over again
+            if len(hat) == 0:
+                print("Let's try again!")
+                randomize_santas()
+                break
+
+        # Pick a random person from the hat to gift to
+        y = (randint(0, len(hat) - 1))
+        print(santas[i], " with email ", email_dict[santas[i]], " gifting to ", hat[y])
+        santa_results[santas[i]] = hat[y]
+
+        # Remove the person who got picked from the hat, no getting picked more than once!
+        hat.pop(y)
+
+        # Put the gifter back into the hat (if they have not already been picked)
+        if len(temp_hold) > 0:
+            hat.append(temp_hold[0])
+            temp_hold.pop(0)
+
+        i += 1
 
 
-# santa_dict[4] = 'ian@1'
-# santa_dict[5] = 'james@1'
-# santa_dict[6] = 'jeremy@1'
-# santa_dict[7] = 'kabeer@1'
-# santa_dict[8] = 'kamal@1'
-# santa_dict[9] = 'liam@1'
-# santa_dict[10] = 'steven@1'
-
-# 10 people. Person N gets their number added to the 'self' list, so they can't receive themselves.
-# Person N then gets a random number 1-10, and that person (Person Y) is who they will gift to.
-# Person Y then gets their number added to the 'taken' list, so they can not be selected again.
-# Remove Person N from the 'self' list
-# Move on to Person N + 1, repeat all above steps
-def randomize_santas(i):
-    self = [i]
-    y = (randint(1, len(santa_dict)))
-    #print(y)
-    while (y in self) | (y in taken):
-        y = (randint(1, len(santa_dict)))
-        #(y)
-
-    taken.append(y)
-    print(santa_dict[i], " giving to ", santa_dict[y])
-
-
-i = 1
-while len(santa_dict) != len(taken):
-    #if len(taken) == len(santa_dict) -1:
-    randomize_santas(i)
-    i += 1
-#send_email()
+randomize_santas()
+print(santa_results)
+for santa in santa_results:
+    send_email(santa)
