@@ -6,10 +6,16 @@ sender_email = "jeremy.i.pk@gmail.com"
 # This is the old password.. sorry
 sender_password = "nkwa fpyy hzqa tive"
 
-email_dict = {'ALEC': 'jdude1000@gmail.com', 'COTE': 'jdude1000@gmail.com', 'DOM': 'jdude1000@gmail.com',
-              'IAN': 'jdude1000@gmail.com', 'JAMES': 'jdude1000@gmail.com', 'JEREMY': 'jdude1000@gmail.com',
-              'KABEER': 'jdude1000@gmail.com', 'KAMAL': 'jdude1000@gmail.com', 'LIAM': 'jdude1000@gmail.com',
-              'STEVEN': 'jdude1000@gmail.com'}
+email_dict = {'ALEC': 'alecnicholas@hotmail.com',
+              'COTE': 'alexcliffordcote@gmail.com',
+              'DOM': 'poiriedo@gmail.com',
+              'IAN': 'ianmcguire1996@gmail.com',
+              'JAMES': 'Jamesgerardbrooks@gmail.com',
+              'JEREMY': 'jeremy.i.pk@gmail.com',
+              'KABEER': 'Kabeergarba@hotmail.com',
+              'KAMAL': 'mirani.kamal@gmail.com',
+              'LIAM': 'Liam.cat@hotmail.com',
+              'STEVEN': 'Stever12344@msn.com'}
 santa_results = {}
 
 subject = "Secret Santa 2025"
@@ -40,11 +46,10 @@ def send_email(santa):
     html_message = MIMEText(body, 'html')
     html_message['Subject'] = subject
     html_message['From'] = sender_email
-    html_message['To'] = santa
+    html_message['To'] = recipient_email
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, recipient_email, html_message.as_string())
-    print("Email sent to", recipient_email, "!")
 
 
 def randomize_santas():
@@ -72,7 +77,6 @@ def randomize_santas():
 
         # Pick a random person from the hat to gift to
         y = (randint(0, len(hat) - 1))
-        print(santas[i], " with email ", email_dict[santas[i]], " gifting to ", hat[y])
         santa_results[santas[i]] = hat[y]
 
         # Remove the person who got picked from the hat, no getting picked more than once!
@@ -87,6 +91,5 @@ def randomize_santas():
 
 
 randomize_santas()
-print(santa_results)
 for santa in santa_results:
     send_email(santa)
